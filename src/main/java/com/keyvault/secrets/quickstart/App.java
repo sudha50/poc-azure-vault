@@ -13,25 +13,26 @@ import com.azure.security.keyvault.secrets.SecretClientBuilder;
 public class App {
 
     public static void main( String[] args ) {
-        String userAssignedclientId = args[0];
-        String secretToRetrieve = args[1];
-        String keyVaultName = args[2];
-        if(userAssignedclientId == null || secretToRetrieve == null|| keyVaultName == null) {
-            throw new RuntimeException("Please refer README.md for required args to be passed");
+        try {
+            String userAssignedclientId = args[0];
+            String secretToRetrieve = args[1];
+            String keyVaultName = args[2];
+            String keyVaultUri = "https://" + keyVaultName + ".vault.azure.net";
+
+
+            DefaultAzureCredential defaultCredential = new DefaultAzureCredentialBuilder()
+                    .managedIdentityClientId(userAssignedclientId)
+                    .build();
+            SecretClient secretClient = new SecretClientBuilder()
+                    .vaultUrl(keyVaultUri)
+                    .credential(defaultCredential)
+                    .buildClient();
+
+            String password = secretClient.getSecret(secretToRetrieve).getValue();
+            System.out.println("the retrieved password is : " + password);
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Please refer README.md for required args to be passed");
         }
-        String keyVaultUri = "https://" + keyVaultName + ".vault.azure.net";
-
-
-        DefaultAzureCredential defaultCredential = new DefaultAzureCredentialBuilder()
-                .managedIdentityClientId(userAssignedclientId)
-                .build();
-        SecretClient secretClient = new SecretClientBuilder()
-                .vaultUrl(keyVaultUri)
-                .credential(defaultCredential)
-                .buildClient();
-
-        String password = secretClient.getSecret(secretToRetrieve).getValue();
-        System.out.println("the retrieved password is : "+ password);
-
     }
 }
