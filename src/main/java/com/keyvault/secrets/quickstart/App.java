@@ -13,9 +13,15 @@ import com.azure.security.keyvault.secrets.SecretClientBuilder;
 public class App {
 
     public static void main( String[] args ) {
-        String keyVaultName = "demo-vault-kti";
-        String keyVaultUri = "https://" + keyVaultName + ".vault.azure.net";
         String userAssignedclientId = args[0];
+        String secretToRetrieve = args[1];
+        String keyVaultName = args[2];
+        if(userAssignedclientId == null || secretToRetrieve == null|| keyVaultName == null) {
+            throw new RuntimeException("Please refer README.md for required args to be passed");
+        }
+        String keyVaultUri = "https://" + keyVaultName + ".vault.azure.net";
+
+
         DefaultAzureCredential defaultCredential = new DefaultAzureCredentialBuilder()
                 .managedIdentityClientId(userAssignedclientId)
                 .build();
@@ -24,7 +30,7 @@ public class App {
                 .credential(defaultCredential)
                 .buildClient();
 
-        String password = secretClient.getSecret("password").getValue();
+        String password = secretClient.getSecret(secretToRetrieve).getValue();
         System.out.println("the retrieved password is : "+ password);
 
     }
